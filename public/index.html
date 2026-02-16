@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Username Checker | APIVerve Tutorial</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .result.safe {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      border: 2px solid #28a745;
+    }
+
+    .result.profane {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      border: 2px solid #dc3545;
+    }
+
+    .result-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .result-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .result-username {
+      font-family: monospace;
+      background: rgba(0,0,0,0.1);
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    .error {
+      margin-top: 16px;
+      padding: 12px;
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      border-radius: 8px;
+      color: #c53030;
+      text-align: center;
+    }
+
+    .examples {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+
+    .examples h3 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .example-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 6px 12px;
+      background: #f0f0f0;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .chip:hover {
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Username Checker</h1>
+    <p class="subtitle">Check if a username contains profanity</p>
+
+    <div class="input-group">
+      <input type="text" id="username" placeholder="Enter username to check..." maxlength="50">
+      <button id="check-btn" onclick="checkUsername()">Check</button>
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="result" class="result">
+      <div class="result-icon" id="result-icon"></div>
+      <div class="result-text" id="result-text"></div>
+      <div class="result-username" id="result-username"></div>
+    </div>
+
+    <div class="examples">
+      <h3>Try these examples:</h3>
+      <div class="example-chips">
+        <span class="chip" onclick="tryExample('cooluser123')">cooluser123</span>
+        <span class="chip" onclick="tryExample('gamer_pro')">gamer_pro</span>
+        <span class="chip" onclick="tryExample('ninja2024')">ninja2024</span>
+        <span class="chip" onclick="tryExample('developer')">developer</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('username');
+
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkUsername();
+    });
+
+    function tryExample(username) {
+      input.value = username;
+      checkUsername();
+    }
+
+    async function checkUsername() {
+      const username = document.getElementById('username').value.trim();
+      const btn = document.getElementById('check-btn');
+      const errorEl = document.getElementById('error');
+      const resultEl = document.getElementById('result');
+
+      if (!username) {
+        showError('Please enter a username.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
+      errorEl.style.display = 'none';
+      resultEl.classList.remove('show', 'safe', 'profane');
+
+      try {
+        const response = await fetch(`/api/check?username=${encodeURIComponent(username)}`);
+        const data = await response.json();
+
+        if (data.error) {
+          showError(data.error);
+        } else {
+          showResult(data);
+        }
+      } catch (err) {
+        showError('Failed to connect to server.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Check';
+      }
+    }
+
+    function showError(message) {
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+    }
+
+    function showResult(data) {
+      const resultEl = document.getElementById('result');
+      const iconEl = document.getElementById('result-icon');
+      const textEl = document.getElementById('result-text');
+      const usernameEl = document.getElementById('result-username');
+
+      if (data.isProfane) {
+        resultEl.className = 'result show profane';
+        iconEl.textContent = '\u274C';
+        textEl.textContent = 'Username contains profanity';
+      } else {
+        resultEl.className = 'result show safe';
+        iconEl.textContent = '\u2705';
+        textEl.textContent = 'Username is appropriate';
+      }
+
+      usernameEl.textContent = data.username;
+    }
+  </script>
+</body>
+</html>
