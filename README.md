@@ -1,35 +1,31 @@
-# Username Profanity Checker | APIVerve API Tutorial
+# Username Checker | APIVerve Template
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
-[![Node.js](https://img.shields.io/badge/Node.js-18+-339933)](https://nodejs.org)
-[![Express](https://img.shields.io/badge/Express-4-000000)](https://expressjs.com)
-[![APIVerve | Username Profanity](https://img.shields.io/badge/APIVerve-Username_Profanity-purple)](https://apiverve.com/marketplace/usernameprofanity?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-339933)](package.json)
+[![Express](https://img.shields.io/badge/Express-4-000000)](package.json)
+[![APIVerve | Username Profanity](https://img.shields.io/badge/APIVerve-Username_Profanity-purple)](https://apiverve.com/marketplace/usernameprofanity?utm_source=github&utm_medium=template&utm_campaign=username-checker-node-tutorial)
 
-A Node.js web app for checking if usernames contain profanity. Perfect for user registration flows and community platforms.
+Stop offensive usernames at signup. Type a username and see whether it contains profanity, including words hidden inside it like `dumbass77`.
 
-![Screenshot](https://raw.githubusercontent.com/apiverve/username-checker-node-tutorial/main/screenshot.jpg)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fapiverve%2Fusername-checker-node-tutorial&project-name=username-checker&repository-name=username-checker&env=APIVERVE_API_KEY&envDescription=Your%20APIVerve%20API%20key.%20Free%20to%20create%2C%20no%20card%20needed.&envLink=https%3A%2F%2Fdashboard.apiverve.com%2Fsignup%3Fapi%3Dusernameprofanity%26utm_source%3Dvercel%26utm_medium%3Dtemplate%26utm_campaign%3Dusername-checker-node-tutorial)
 
----
-
-### Get Your Free API Key
-
-This tutorial requires an APIVerve API key. **[Sign up free](https://dashboard.apiverve.com?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial)** - no credit card required.
+![Username Checker flagging an offensive username](https://raw.githubusercontent.com/apiverve/username-checker-node-tutorial/main/screenshot.png)
 
 ---
 
-## Features
+### Get your free API key
 
-- Check usernames for inappropriate content
-- Real-time validation feedback
-- Visual safe/profane indicators
-- Example usernames to test
-- Clean, modern UI
-- Built with Express.js
+This template needs an APIVerve API key. **[Sign up free](https://dashboard.apiverve.com/signup?api=usernameprofanity&utm_source=github&utm_medium=template&utm_campaign=username-checker-node-tutorial)**, no credit card required.
 
-## Quick Start
+---
 
-1. **Clone this repository**
+## Deploy in one click
+
+Click **Deploy with Vercel** above. Vercel copies this repo to your GitHub account, asks for your `APIVERVE_API_KEY`, and gives you a live URL about a minute later.
+
+## Run it locally
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/apiverve/username-checker-node-tutorial.git
    cd username-checker-node-tutorial
@@ -41,117 +37,67 @@ This tutorial requires an APIVerve API key. **[Sign up free](https://dashboard.a
    ```
 
 3. **Add your API key**
-
-   Set environment variable or edit `server.js`:
    ```bash
-   export API_KEY=your-api-key-here
+   cp .env.example .env
    ```
+   Then open `.env` and set `APIVERVE_API_KEY`.
 
 4. **Start the server**
    ```bash
-   npm start
+   npm run dev
    ```
 
-5. **Open in browser**
+5. **Open** `http://localhost:3000`
 
-   Visit http://localhost:3000 and check usernames!
+## How it works
 
-## Project Structure
+1. The page in `public/index.html` calls `GET /api/check?username=` on this server.
+2. `server.js` checks the input, then calls Username Profanity. Your API key stays on the server and never reaches the browser.
+3. The page shows the result.
 
 ```
-username-checker-node-tutorial/
-├── server.js           # Express server & API endpoint
-├── public/
-│   └── index.html      # Frontend UI
-├── package.json        # Dependencies
-├── screenshot.jpg      # Preview image
-├── LICENSE             # MIT license
-├── .gitignore          # Git ignore rules
-└── README.md           # This file
+├── server.js            # Express: the /api route that calls APIVerve
+├── public/index.html    # The page (HTML, CSS and JavaScript)
+├── .env.example         # Copy to .env and add your key
+└── package.json
 ```
 
-## How It Works
-
-1. User enters a username
-2. Frontend sends GET request to `/api/check`
-3. Server calls the Username Profanity API
-4. API analyzes the username
-5. Frontend displays safe/profane result
-
-### The API Call
+### The API call
 
 ```javascript
-const response = await fetch(`https://api.apiverve.com/v1/usernameprofanity?username=${username}`, {
-  method: 'GET',
-  headers: {
-    'x-api-key': API_KEY
-  }
-});
+const res = await fetch(
+  `https://api.apiverve.com/v1/usernameprofanity?username=${encodeURIComponent(username)}`,
+  { headers: { 'x-api-key': process.env.APIVERVE_API_KEY } }
+);
+const { data } = await res.json();
+// data.isProfane → true or false
 ```
 
-## API Reference
+## Before you share your URL
 
-**Endpoint:** `GET https://api.apiverve.com/v1/usernameprofanity`
+Once deployed, anyone who finds your URL can use it on your API key. Each visitor can make 10 requests a minute, which is fine for a demo. The limit is kept in memory, so it isn't shared between serverless instances. For production:
 
-**Query Parameters:**
+- Put the page behind your own sign-in, or
+- Move the limit to a shared store such as [Upstash Redis](https://upstash.com/), or
+- Call the route only from your own backend.
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `username` | string | Yes | The username to check |
+## Ideas to extend it
 
-**Example Response:**
+- Check usernames live as people type, before they submit
+- Run the same check on display names and team names
+- Add [Profanity Filter](https://apiverve.com/marketplace/profanityfilter?utm_source=github&utm_medium=template&utm_campaign=username-checker-node-tutorial) to mask words in bios and comments
 
-```json
-{
-  "status": "ok",
-  "error": null,
-  "data": {
-    "username": "cooluser123",
-    "isProfane": false
-  }
-}
-```
+## API reference
 
-## Use Cases
+- [Username Profanity](https://apiverve.com/marketplace/usernameprofanity?utm_source=github&utm_medium=template&utm_campaign=username-checker-node-tutorial): `GET https://api.apiverve.com/v1/usernameprofanity?username=`
+- [Full documentation](https://docs.apiverve.com?utm_source=github&utm_medium=template&utm_campaign=username-checker-node-tutorial)
 
-- **User Registration** - Validate usernames during signup
-- **Gaming Platforms** - Enforce appropriate gamertags
-- **Social Media** - Screen display names
-- **Forums** - Moderate community usernames
-- **Chat Apps** - Filter inappropriate handles
-- **E-commerce** - Validate seller/buyer names
+## Tech stack
 
-## Customization Ideas
-
-- Add batch checking for multiple usernames
-- Suggest alternative usernames when profane
-- Add username availability checking
-- Integrate with signup forms
-- Store checked usernames in database
-- Add admin dashboard for moderation
-
-## Related APIs
-
-Explore more APIs at [APIVerve](https://apiverve.com/marketplace?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial):
-
-- [Profanity Filter](https://apiverve.com/marketplace/profanityfilter?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial) - Filter profanity from text
-- [Email Validator](https://apiverve.com/marketplace/emailvalidator?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial) - Validate email addresses
-- [Username Generator](https://apiverve.com/marketplace/usernamegenerator?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial) - Generate usernames
-
-## Free Plan Note
-
-This tutorial works with the free APIVerve plan. Some APIs may have:
-- **Locked fields**: Premium response fields return `null` on free plans
-- **Ignored parameters**: Some optional parameters require a paid plan
-
-The API response includes a `premium` object when limitations apply. [Upgrade anytime](https://dashboard.apiverve.com/plans) to unlock all features.
+- **Node.js 20+** and **Express 4**
+- Plain HTML, CSS and JavaScript, no build step
+- Deploys to Vercel as-is: `server.js` becomes one function and `public/` is served from the CDN
 
 ## License
 
-MIT - see [LICENSE](LICENSE)
-
-## Links
-
-- [Get API Key](https://dashboard.apiverve.com?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial) - Sign up free
-- [APIVerve Marketplace](https://apiverve.com/marketplace?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial) - Browse 300+ APIs
-- [Username Profanity API](https://apiverve.com/marketplace/usernameprofanity?utm_source=github&utm_medium=tutorial&utm_campaign=username-checker-node-tutorial) - API details
+MIT. See [LICENSE](LICENSE).
